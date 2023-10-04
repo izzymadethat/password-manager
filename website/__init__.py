@@ -12,8 +12,9 @@ app.config.from_mapping(
     SQLALCHEMY_DATABASE_URI=f'sqlite:///{DB_NAME}'
 )
 db.init_app(app)
+    
+from website import routes
+from website.models import User, Login, Note, CreditCard
 
 with app.app_context():
     db.create_all()
-    
-from website import routes

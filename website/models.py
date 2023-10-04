@@ -42,8 +42,8 @@ class Note(db.Model):
 class CreditCard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    number = db.Column(db.Integer(16), nullable=False)
+    number = db.Column(db.Integer, nullable=False)
     expires = db.Column(db.DateTime, nullable=False)
-    cvv = db.Column(db.Integer(4), nullable=False)
-    zip_code = db.Column(db.Integer(8), nullable=False)
+    cvv = db.Column(db.Integer, nullable=False)
+    zip_code = db.Column(db.Integer, nullable=False)
     primary = db.Column(db.Boolean) 
