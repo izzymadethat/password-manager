@@ -1,32 +1,66 @@
 {% extends 'base.html'%}
+{% block content%}
+    <section class="container forms">
+        <div class="form">
+            <div class="form-content">
+                <h1>Register</h1>
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="field input-field">
+                        {{ form.name(class="input", placeholder=form.name.label.text) }}   
+                    </div>
+                    <div class="field input-field">
+                        {{ form.username(class="input", placeholder=form.username.label.text) }}  
+                    </div>
+                    <div class="field input-field">
+                        {{ form.email(class="input", placeholder=form.email.label.text) }} 
+                    </div>
+                    <div class="field input-field">
+                        {{ form.confirmation_email(class="input", placeholder=form.confirmation_email.label.text) }}
+                    </div>
+                    <div class="field input-field">
+                        {{ form.password(class="input password", placeholder=form.password.label.text) }}
+                        <i class="bx bx-hide eye-icon"></i>                    
+                    </div>
+                    <div class="field input-field">
+                        {{ form.confirmation_password(class="input password", placeholder=form.confirmation_password.label.text) }}
+                        <i class="bx bx-hide eye-icon"></i>
+                    </div>
+                    <div class="field button-field">
+                        {{ form.submit(class="button") }}
+                    </div>
+                    <div class="form-link">
+                        <a href="#" class="forgot-pass"><small>Forgot Password</small></a>
+                        <a href="#" class="signup-link"><small>Need an Account?</small></a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
 <body>
     <form method="POST" action="">
         {{ form.hidden_tag() }}  {# Include the CSRF token #}
+
         <div class="form-group">
-            {{ form.name.label(class="form-control-label") }}
-            {{ form.name(class="form-control") }}
+            
         </div>
         <div class="form-group">
-            {{ form.username.label(class="form-control-label") }}
-            {{ form.username(class="form-control") }}
+            
         </div>
         <div class="form-group">
-            {{ form.email.label(class="form-control-label") }}
-            {{ form.email(class="form-control") }}
+            {{ form.confirmation_email.label(class="input-label") }}
+            {{ form.confirmation_email(class="input") }}
         </div>
         <div class="form-group">
-            {{ form.confirmation_email.label(class="form-control-label") }}
-            {{ form.confirmation_email(class="form-control") }}
+
         </div>
         <div class="form-group">
-            {{ form.password.label(class="form-control-label") }}
-            {{ form.password(class="form-control") }}
+
         </div>
-        <div class="form-group">
-            {{ form.confirmation_password.label(class="form-control-label") }}
-            {{ form.confirmation_password(class="form-control") }}
-        </div>
-        {{ form.submit }}
+        
     </form>
 </body>
 </html>

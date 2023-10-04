@@ -3,6 +3,7 @@ from wtforms import (StringField, EmailField,
                      PasswordField, BooleanField, 
                      TextAreaField, IntegerField, 
                      DateField, SubmitField)
+from wtforms.widgets import PasswordInput
 from wtforms.validators import DataRequired, Length, EqualTo
 
 class RegistrationForm(FlaskForm):
@@ -10,7 +11,8 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=6, max=16)])
     email = EmailField('Email', validators=[DataRequired()])
     confirmation_email = EmailField('Confirm Email', validators=[DataRequired(), EqualTo(email)])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=8, max=20)])
+    password = PasswordField('Password', 
+                             validators=[DataRequired(), Length(min=8, max=20)])
     confirmation_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo(password)])
     submit = SubmitField('Sign Up')
 
@@ -41,3 +43,6 @@ class CreditCardForm(FlaskForm):
     zip_code = IntegerField('Zip Code', validators=[DataRequired()])
     default = BooleanField('Primary Card')
     submit = SubmitField('Add Credit Card to Wallet')
+
+class PasswordTextInput(PasswordInput):
+    input_type = "text"
