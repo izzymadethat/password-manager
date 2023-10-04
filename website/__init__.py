@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+# from models import User, Login, Note, CreditCard
 
 DB_NAME = 'passman.db'
 
@@ -16,4 +17,3 @@ with app.app_context():
     db.create_all()
     
 from website import routes
-from models import User, Login, Note, CreditCard

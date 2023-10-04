@@ -12,6 +12,7 @@ class User(db.Model):
     user_since = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     logins = db.relationship('Login', backref='logins', lazy=True)
     notes = db.relationship('Note', backref='notes', lazy=True)
+    cards= db.relationship('CreditCard', backref='cards', lazy=True)
 
     def __repr__(self):
         return f"User('{self.name}', '{self.username}', '{self.email}' '{self.image_file}')"
@@ -41,4 +42,8 @@ class Note(db.Model):
 class CreditCard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    
+    number = db.Column(db.Integer(16), nullable=False)
+    expires = db.Column(db.DateTime, nullable=False)
+    cvv = db.Column(db.Integer(4), nullable=False)
+    zip_code = db.Column(db.Integer(8), nullable=False)
+    primary = db.Column(db.Boolean) 
