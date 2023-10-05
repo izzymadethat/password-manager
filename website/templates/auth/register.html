@@ -7,20 +7,20 @@
                 <form method="POST">
                     {{ form.hidden_tag() }}
                     <div class="field input-field">
-                        {{ form.name(class="input", placeholder=form.name.label.text) }}   
+                        {{ form.name(class="input", placeholder=form.name.label.text) }}
                     </div>
                     <div class="field input-field">
-                        {{ form.username(class="input", placeholder=form.username.label.text) }}  
+                        {{ form.username(class="input", placeholder=form.username.label.text) }}
                     </div>
                     <div class="field input-field">
-                        {{ form.email(class="input", placeholder=form.email.label.text) }} 
+                        {{ form.email(class="input", placeholder=form.email.label.text) }}
                     </div>
                     <div class="field input-field">
                         {{ form.confirmation_email(class="input", placeholder=form.confirmation_email.label.text) }}
                     </div>
                     <div class="field input-field">
                         {{ form.password(class="input password", placeholder=form.password.label.text) }}
-                        <i class="bx bx-hide eye-icon"></i>                    
+                        <i class="bx bx-hide eye-icon"></i>
                     </div>
                     <div class="field input-field">
                         {{ form.confirmation_password(class="input password", placeholder=form.confirmation_password.label.text) }}
@@ -31,7 +31,7 @@
                     </div>
                     <div class="form-link">
                         <a href="#" class="forgot-pass"><small>Forgot Password</small></a>
-                        <a href="#" class="signup-link"><small>Need an Account?</small></a>
+                        <a href="{{ url_for('auth.login') }}" class="signup-link"><small>Have an Account?</small></a>
                     </div>
                 </form>
             </div>
@@ -39,28 +39,3 @@
     </section>
 
 {% endblock %}
-
-<body>
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}  {# Include the CSRF token #}
-
-        <div class="form-group">
-            
-        </div>
-        <div class="form-group">
-            
-        </div>
-        <div class="form-group">
-            {{ form.confirmation_email.label(class="input-label") }}
-            {{ form.confirmation_email(class="input") }}
-        </div>
-        <div class="form-group">
-
-        </div>
-        <div class="form-group">
-
-        </div>
-        
-    </form>
-</body>
-</html>

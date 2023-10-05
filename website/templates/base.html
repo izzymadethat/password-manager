@@ -11,7 +11,7 @@
     {% if title %}
         <title>{{ title }}-PasswordManager</title>
     {% else %}
-        <title>PasswordManager</title>  
+        <title>PasswordManager</title>
     {% endif %}
 </head>
 <body>
@@ -22,8 +22,8 @@
                     <img src="{{url_for('static', filename='assets/images/logo.png')}}" alt="logo">
                 </span>
                 <div class="text header-text">
-                    <span class="name">PasswordManager</span>
-                    <span class="username">Isaiah Vickers</span>
+                    <span class="name"><a href="{{url_for('auth.dashboard')}}">PasswordManager</a></span>
+                    <span class="username"><a href="{{url_for('auth.account')}}">Isaiah Vickers</a></span>
                 </div>
             </div>
             <i class='bx bxs-chevron-right toggle'></i>
@@ -36,31 +36,31 @@
                 </li>
                 <ul class="menu-links">
                     <li class="nav-link">
-                        <a href="{{url_for('dashboard')}}">
+                        <a href="{{url_for('auth.dashboard')}}">
                             <i class='bx bxs-dashboard icon'></i>
                             <span class="text nav-text">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-link">
-                        <a href="{{url_for('show_logins')}}">
+                        <a href="{{url_for('auth.show_logins')}}">
                             <i class='bx bxs-bank icon'></i>
                             <span class="text nav-text">Logins</span>
                         </a>
                     </li>
                     <li class="nav-link">
-                        <a href="">
+                        <a href="{{url_for('auth.notes')}}">
                             <i class='bx bxs-note icon'></i>
                             <span class="text nav-text">Notes</span>
                         </a>
                     </li>
                     <li class="nav-link">
-                        <a href="">
+                        <a href="{{url_for('auth.account')}}">
                             <i class='bx bxs-user icon'></i>
                             <span class="text nav-text">Account</span>
                         </a>
                     </li>
                     <li class="nav-link">
-                        <a href="">
+                        <a href="{{url_for('auth.settings')}}">
                             <i class='bx bxs-cog icon'></i>
                             <span class="text nav-text">Settings</span>
                         </a>
@@ -89,7 +89,7 @@
             </div>
         </div>
     </nav>
-    
+
     <div id="content" class="sidebar-extended">
         {% block content %}{%endblock%}
     </div>

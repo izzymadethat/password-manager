@@ -1,0 +1,22 @@
+{% extends "base.html"%}
+{% block content%}
+<section class="container forms">
+    <div class="form">
+        <div class="form-content">
+            <h1>Add A Secure Note</h1>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="field input-field">
+                    {{ form.title(class="input", placeholder=form.title.label.text) }}
+                </div>
+                <div class="field text-field">
+                    {{ form.note(class="input", placeholder=form.note.label.text) }}
+                </div>
+                <div class="field button-field">
+                    {{ form.submit(class="button") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock%}

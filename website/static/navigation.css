@@ -78,6 +78,11 @@ header .image-text .header-text {
     flex-direction: column;
 }
 
+.header-text a {
+    text-decoration: none;
+    color: var(--text-color);
+}
+
 .header-text .name {
     font-weight: 600;
 }

@@ -22,9 +22,10 @@
 }
 
 .form .input,
+.form .text-field::placeholder,
 .field .input::placeholder {
     font-family: var(--text-font);
-} 
+}
 
 form {
     margin-top: 30px;
@@ -38,6 +39,7 @@ form .field {
 }
 
 .field .input,
+.field .text-field,
 .field .button {
     height: 100%;
     width: 100%;
@@ -52,6 +54,10 @@ form .field {
     background: var(--sidebar-color);
     outline: none;
     transition: var(--tran-02s);
+}
+
+.text-field::placeholder {
+    font-size: var(--text-size);
 }
 
 .field .input:focus {
