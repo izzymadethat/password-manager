@@ -13,6 +13,10 @@
                         {{ form.password(class="input password", placeholder=form.password.label.text) }}
                         <i class="bx bx-hide eye-icon"></i>
                     </div>
+                    <div class="form-check">
+                        {{ form.remember(class="form-check-input mt-2")}}
+                        {{ form.remember.label(class="form-check-label mt-2")}}
+                    </div>
                     <div class="field button-field">
                         {{ form.submit(class="button") }}
                     </div>

@@ -12,15 +12,11 @@ auth = Blueprint("auth",
 It controls what the user views when logged in , and handles when they are not
 logged in."""
 
-@auth.route('/dashboard', defaults={'username': 'izzy'})
+@auth.route('/dashboard')
 @auth.route('/user/<username>/')
-def dashboard(username):
+def dashboard():
    #  user = User.query.filter_by(name=username).first()
-   if username:
-      return render_template('dashboard.html')
-
-   flash('Sign in to view your dashboard.')
-   return redirect(url_for('auth.login'))
+   return render_template('dashboard.html')
 
 @auth.route("/login", methods=["GET","POST"])
 def login():
@@ -30,7 +26,12 @@ def login():
 @auth.route("/register", methods=["GET","POST"])
 def register():
    form = RegistrationForm()
-   return render_template('register.html', form=form)
+   if form.validate_on_submit():
+      flash(f'Welcome {form.name.data.capitalize()}! You may now login.', category='success')
+      return redirect(url_for('auth.dashboard'))
+   # elif form.confirmation_email != form.email:
+   #    flash(f"Emails do not match!", category='danger')
+   return render_template('register.html', form=form, name=form.name.data)
 
 @auth.route("/account", methods=["GET","POST"])
 def account():

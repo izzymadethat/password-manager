@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Welcome to the dashboard!</h1>
+
+{% if name%}
+<h1>Welcome {{ name }}!</h1>
+{% else %}
+<h1>Welcome!</h1>
+{% endif %}
+
 {% endblock %}

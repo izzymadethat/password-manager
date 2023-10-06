@@ -10,15 +10,16 @@ class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     username = StringField('Username', validators=[DataRequired(), Length(min=6, max=16)])
     email = EmailField('Email', validators=[DataRequired()])
-    confirmation_email = EmailField('Confirm Email', validators=[DataRequired(), EqualTo(email)])
+    confirmation_email = EmailField('Confirm Email', validators=[DataRequired(), EqualTo('email')])
     password = PasswordField('Password',
                              validators=[DataRequired(), Length(min=8, max=20)])
-    confirmation_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo(password)])
+    confirmation_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
+    remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
 class AddLoginForm(FlaskForm):
