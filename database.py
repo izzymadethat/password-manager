@@ -21,8 +21,6 @@ def create_table(table, *columns, unique_columns=()) -> bool:
 				column_names += ", "
 
 		statement = f"""CREATE TABLE {table}({column_names})"""
-
-		print(statement)
 				
 		c.execute(statement)
 
@@ -45,35 +43,52 @@ def create_table(table, *columns, unique_columns=()) -> bool:
 
 def create_user(table, user_info=[]):
 
-	placeholders = ', '.join(["?"] * len(user_info))
+	conn = sqlite3.connect('test.db')
+	c = conn.cursor()
 
-	for information in user_info:
-		info = ", ".join(f"'{information}'")
+	try:
+		info = ""
+		placeholders = ', '.join("?" * len(user_info))
 
-	statement = f"""INSERT INTO {table} VALUES ({placeholders})"""
+		values = tuple(user_info)
 
-	output = (user_info)
+		statement = f"""INSERT INTO {table} VALUES ({placeholders})"""
 
-	return output
+		print(statement, values)
+		c.execute(statement, values)
+		conn.commit()
+		conn.close()
+
+		return True
 	
+	except sqlite3.IntegrityError as ie:
+		message = 'insert error'
+		error_message = str(ie)
 
-table = create_table(
-				'test', 
-				('first_name', 'TEXT'),
-				('last_name', 'TEXT'),
-				('email', 'TEXT'),
-				('password', 'TEXT')
-			)
+		print(f"{message.upper()}: User Exists ({values[2]})")
+
+		return False
+
+# table = create_table(
+# 				'test', 
+# 				('first_name', 'TEXT'),
+# 				('last_name', 'TEXT'),
+# 				('email', 'TEXT'),
+# 				('password', 'TEXT')
+# 			)
 	
-table = create_table(
-						'test_password_table', 
-						('first', 'TEXT'), 
-						('last', 'TEXT'), 
-						('email', 'TEXT'), 
-						('password', 'TEXT'),
+# table = create_table(
+# 						'test_password_table', 
+# 						('first', 'TEXT'), 
+# 						('last', 'TEXT'), 
+# 						('email', 'TEXT'), 
+# 						('password', 'TEXT'),
 
-						unique_columns=['email'] 
-					)
+# 						unique_columns=['email'] 
+# 					)
+
+
+create_user('test', ['Isaiah', 'Vickers', 'isaiah@me.com', 'Vi10088139'])
 
 
 
