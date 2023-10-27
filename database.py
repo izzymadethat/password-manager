@@ -40,7 +40,6 @@ def create_table(table, *columns, unique_columns=()) -> bool:
 
 		return False
 
-
 def create_user(table, user_info=[]):
 
 	conn = sqlite3.connect('test.db')
@@ -54,12 +53,22 @@ def create_user(table, user_info=[]):
 
 		statement = f"""INSERT INTO {table} VALUES ({placeholders})"""
 
-		print(statement, values)
+		# print(statement, values)
 		c.execute(statement, values)
 		conn.commit()
 		conn.close()
 
+		print("User added successfully!")
+
 		return True
+
+	except sqlite3.OperationalError as oe:
+		message = 'add user error'
+		error_message = str(oe)
+
+		print(message.upper() + ':', error_message.capitalize())
+
+		return False
 	
 	except sqlite3.IntegrityError as ie:
 		message = 'insert error'
@@ -88,7 +97,7 @@ def create_user(table, user_info=[]):
 # 					)
 
 
-create_user('test', ['Isaiah', 'Vickers', 'isaiah@me.com', 'Vi10088139'])
+create_user('test_password_table', ['Isaiah', 'Vickers', 'isaiah@me.com', 'Vi10088139'])
 
 
 
