@@ -2,11 +2,6 @@ import getpass
 import bcrypt
 
 
-class User:
-
-    """Characteristics of a User using the Password Manager."""
-
-
 def add_login_info():
     login_info = {}
 

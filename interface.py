@@ -146,10 +146,10 @@ confirm_password.bind("<FocusOut>", on_confirm_password_leave)
 
 tk.Frame(frame, width=295, height=2, bg="black").place(x=25, y=317)
 
-###### ----- Button -----
+# ----- Button -----
 tk.Button(
-    frame, width=39, pady=7, text="Sign Up", bg="#57a1f8", fg="white", border=0
-).place(x=35, y=340)
+    frame, width=39, pady=7, text="Sign Up", bg="#57a1f8", fg="white", border=0,
+    cursor='hand2').place(x=35, y=340)
 
 account_exist_label = tk.Label(
     frame,

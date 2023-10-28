@@ -1,104 +1,154 @@
 import sqlite3
+# conn = sqlite3.connect('test.db')
+# c = conn.cursor()
 
-conn = sqlite3.connect('test.db')
-c = conn.cursor()
 
 def create_table(table, *columns, unique_columns=()) -> bool:
-	conn = sqlite3.connect('test.db')
-	c = conn.cursor()
+    conn = sqlite3.connect('test.db')
+    c = conn.cursor()
 
-	try:
+    try:
 
-		column_names = ""
+        column_names = ""
 
-		for i, (column, datatype) in enumerate(columns):
-			if column in unique_columns:
-				column_names += f"'{column}' {datatype} NOT NULL UNIQUE"
-			else:
-				column_names += f"'{column}' {datatype}"
+        for i, (column, datatype) in enumerate(columns):
+            if column in unique_columns:
+                column_names += f"'{column}' {datatype} NOT NULL UNIQUE"
+            else:
+                column_names += f"'{column}' {datatype}"
 
-			if i < len(columns) - 1:
-				column_names += ", "
+            if i < len(columns) - 1:
+                column_names += ", "
 
-		statement = f"""CREATE TABLE {table}({column_names})"""
-				
-		c.execute(statement)
+        statement = f"""CREATE TABLE {table}({column_names})"""
 
-		conn.commit()
-		conn.close()
+        c.execute(statement)
 
-		print("Table created successfully!")
+        conn.commit()
+        conn.close()
 
-		return True
+        print("Table created successfully!")
 
-	except sqlite3.OperationalError as oe:
+        return True
 
-		message = 'create table error'
-		error_message = str(oe)
+    except sqlite3.OperationalError as oe:
 
-		print(message.upper() + ':', error_message.capitalize())
+        message = 'create table error'
+        error_message = str(oe)
 
-		return False
+        print(message.upper() + ':', error_message.capitalize())
 
-def create_user(table, user_info=[]):
+        return False
 
-	conn = sqlite3.connect('test.db')
-	c = conn.cursor()
 
-	try:
-		info = ""
-		placeholders = ', '.join("?" * len(user_info))
+def create_information(table, user_info=[]):
 
-		values = tuple(user_info)
+    conn = sqlite3.connect('test.db')
+    c = conn.cursor()
 
-		statement = f"""INSERT INTO {table} VALUES ({placeholders})"""
+    try:
+        info = ""
+        placeholders = ', '.join("?" * len(user_info))
 
-		# print(statement, values)
-		c.execute(statement, values)
-		conn.commit()
-		conn.close()
+        values = tuple(user_info)
 
-		print("User added successfully!")
+        statement = f"""INSERT INTO {table} VALUES ({placeholders})"""
 
-		return True
+        # print(statement, values)
+        c.execute(statement, values)
+        conn.commit()
+        conn.close()
 
-	except sqlite3.OperationalError as oe:
-		message = 'add user error'
-		error_message = str(oe)
+        print("User added successfully!")
 
-		print(message.upper() + ':', error_message.capitalize())
+        return True
 
-		return False
-	
-	except sqlite3.IntegrityError as ie:
-		message = 'insert error'
-		error_message = str(ie)
+    except sqlite3.OperationalError as oe:
+        message = 'add user error'
+        error_message = str(oe)
 
-		print(f"{message.upper()}: User Exists ({values[2]})")
+        print(message.upper() + ':', error_message.capitalize())
 
-		return False
+        return False
+
+    except sqlite3.IntegrityError as ie:
+        message = 'insert error'
+        error_message = str(ie)
+
+        print(f"{message.upper()}: User Exists ({values[2]})")
+
+        return False
+
+
+def update_information(rowid, url, title, username, email, password) -> bool:
+    conn = sqlite3.connect('test.db')
+    c = conn.cursor()
+
+    query = """UPDATE test_passwords SET url = ?, title = ?, username = ?, email = ?, password = ? WHERE rowid = ? """
+    data = (url, title, username, email, password, rowid)
+
+    try:
+        c.execute(query, data)
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+def retrieve_account(table, email, password) -> bool:
+    conn = sqlite3.connect('test.db')
+    c = conn.cursor()
+    c.execute(f"SELECT * FROM {table} WHERE email = '{email}'")
+
+    try:
+        result = c.fetchone()
+
+        if result:
+            if email == result[2] and password == result[3]:
+                print("User Found:", result[2] + " |", result[3])
+                return True
+
+    except TypeError:
+        print("User not found")
+        return False
+
+
+def read_all_data():
+    conn = sqlite3.connect('test.db')
+    c = conn.cursor()
+    query = "SELECT rowid, * FROM test_passwords"
+    c.execute(query)
+    items = c.fetchall()
+    conn.commit()
+    conn.close()
+
+    return items
 
 # table = create_table(
-# 				'test', 
+# 				'test',
 # 				('first_name', 'TEXT'),
 # 				('last_name', 'TEXT'),
 # 				('email', 'TEXT'),
 # 				('password', 'TEXT')
 # 			)
-	
+
 # table = create_table(
-# 						'test_password_table', 
-# 						('first', 'TEXT'), 
-# 						('last', 'TEXT'), 
-# 						('email', 'TEXT'), 
+# 						'test_password_table',
+# 						('first', 'TEXT'),
+# 						('last', 'TEXT'),
+# 						('email', 'TEXT'),
 # 						('password', 'TEXT'),
 
-# 						unique_columns=['email'] 
+# 						unique_columns=['email']
 # 					)
 
 
-create_user('test_password_table', ['Isaiah', 'Vickers', 'isaiah@me.com', 'Vi10088139'])
+# create_user('test_password_table', [
+#             'Isaiah', 'Vickers', 'isaiah@me.com', 'Vi10088139'])
 
+# retrieve_account('test_password_table', 'isaiah@me.com', 'Vi10088139')
 
 
 # conn.commit()
