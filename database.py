@@ -95,7 +95,17 @@ def update_information(rowid, url, title, username, email, password) -> bool:
     except Exception as e:
         print(e)
         return False
+    
+def delete_entry(rowid):
+    conn = sqlite3.connect('test.db')
+    c = conn.cursor()
 
+    query = """DELETE FROM test_passwords WHERE rowid = ? """
+    data = rowid
+
+    c.execute(query, data)
+    conn.commit()
+    conn.close()
 
 def retrieve_account(table, email, password) -> bool:
     conn = sqlite3.connect('test.db')
@@ -126,6 +136,12 @@ def read_all_data():
 
     return items
 
+def connect():
+    conn = sqlite3.connect('test.db')
+    c = conn.cursor()
+
+    return conn, c
+    
 # table = create_table(
 # 				'test',
 # 				('first_name', 'TEXT'),

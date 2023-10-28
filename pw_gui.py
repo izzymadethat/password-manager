@@ -50,6 +50,10 @@ def refresh_table():
     tree.tag_configure('orow', background="#EEEEEE")
     tree.pack()
 
+def set_placeholder(word, num):
+    for ph in range(0,5):
+        if ph == num:
+            placeholder[ph].set(word)
 
 def generate_password():
     password = ''.join(random.choice(password_characters)
@@ -103,32 +107,111 @@ def update():
     try:
         selected_item = tree.selection()[0]
         selected_id = str(tree.item(selected_item)['values'][0])
+
+        url = str(url_entry.get())
+        title = str(title_entry.get())
+        username = str(username_entry.get())
+        email = str(email_entry.get())
+        password = str(password_entry.get())
+
+        if url=="" and title=="" and username=="" and email=="" and password=="":
+            messagebox.showwarning("Nothing to Update", "No information to update.")
+            return
+        if username == "":
+            username = email
+
+        updated = db.update_information(
+            selected_id, url, title, username, email, password)
+
+        try:
+            if updated:
+                clear_entry_boxes()
+                messagebox.showinfo("Success", "Information succesfully updated!")
+                refresh_table()
+        except Exception as e:
+            print("Error:", str(e))
+            messagebox.showerror("Error", "Error while saving")
+    except:
+        messagebox.showwarning("No Item Selected", "Select a row to update.")
+        return
+    
+
+def select():
+    try:
+        selected_item = tree.selection()[0]
+        selected_id = str(tree.item(selected_item)['values'][0])
+        selected_website = str(tree.item(selected_item)['values'][1])
+        selected_title = str(tree.item(selected_item)['values'][2])
+        selected_username = str(tree.item(selected_item)['values'][3])
+        selected_email = str(tree.item(selected_item)['values'][4])
+        selected_password = str(tree.item(selected_item)['values'][5])
+
+        set_placeholder(selected_website, 0)
+        set_placeholder(selected_title, 1)
+        set_placeholder(selected_username, 2)
+        set_placeholder(selected_email, 3)
+        set_placeholder(selected_password, 4)
     except:
         messagebox.showwarning("No Item Selected", "Select a row to update.")
 
-    print(selected_id)
-    url = str(url_entry.get())
+def delete():
+    try:
+        if tree.selection()[0]:
+            confirmation = messagebox.askquestion("Warning: Permanent Deletion", "DELETING this entry is PERMANENT!! Continue?")
+
+            if confirmation == 'no':
+                return
+            else:
+                selected_item = tree.selection()[0]
+                selected_id = str(tree.item(selected_item)["values"][0])
+                try:
+                    db.delete_entry(selected_id)
+                    messagebox.showinfo("Success", "Information Deleted")
+                except Exception as e:
+                    print("Error:", str(e))
+                    messagebox.showerror(f"Error", "An error has occured.")
+                refresh_table()
+    except:
+        messagebox.showwarning("No Item Selected", "Select a row to delete.")
+        return
+    
+def find_query(entry, column):
+    sql = f"SELECT * FROM test_passwords WHERE {column} LIKE '%{entry}%'"
+
+    return sql
+
+def find():
+    website = str(url_entry.get())
     title = str(title_entry.get())
     username = str(username_entry.get())
     email = str(email_entry.get())
     password = str(password_entry.get())
 
-    if username == "":
-        username = email
+    conn, c = db.connect()
 
-    updated = db.update_information(
-        selected_id, url, title, username, email, password)
+    if website:
+        sql = find_query(website, 'url')
+    elif title:
+        sql = find_query(title, 'title')
+    elif username:
+        sql = find_query(username, 'username')
+    elif email:
+        sql = find_query(email, 'email')
+    elif password:
+        sql = find_query(password, 'password')
+    else:
+        messagebox.showerror("Nothing entered", "Fill one of the entries\nin order to find login information")
+        return
 
+    c.execute(sql)
     try:
-        if updated:
-            clear_entry_boxes()
-            messagebox.showinfo("Success", "Information succesfully updated!")
-            refresh_table()
-    except Exception as e:
-        print("Error:", str(e))
-        messagebox.showerror("Error", "Error while saving")
-
-
+        result = c.fetchall()
+        for num in range(0,5):
+            set_placeholder(result[0][num],(num))
+        conn.commit()
+        conn.close()
+    except:
+        messagebox.showerror("No results", "Login not found.")
 # CREATE DATABASE
 # table = db.create_table("test_passwords",
 #                         ('url', 'TEXT'),
@@ -148,24 +231,24 @@ add_btn = Button(options_frame, text="ADD", width=10,
                  borderwidth=3, bg=btn_color, fg='white', command=add_login)
 update_btn = Button(options_frame, text="UPDATE", width=10,
                     borderwidth=3, bg=btn_color, fg='white', command=update)
+select_btn = Button(options_frame, text="SELECT", width=10,
+                    borderwidth=3, bg=btn_color, fg='white', command=select)
 delete_btn = Button(options_frame, text="DELETE", width=10,
-                    borderwidth=3, bg=btn_color, fg='white')
+                    borderwidth=3, bg=btn_color, fg='white', command=delete)
 copy_btn = Button(options_frame, text="COPY", width=10,
                   borderwidth=3, bg=btn_color, fg='white')
-clear_btn = Button(options_frame, text="CLEAR", width=10,
-                   borderwidth=3, bg=btn_color, fg='white')
+find_btn = Button(options_frame, text="FIND", width=10,
+                   borderwidth=3, bg=btn_color, fg='white', command=find)
 export_btn = Button(options_frame, text="EXPORT", width=10,
                     borderwidth=3, bg=btn_color, fg='white')
-save_btn = Button(options_frame, text="SAVE", width=10,
-                  borderwidth=3, bg=btn_color, fg='white')
 
 add_btn.grid(row=0, column=0, padx=5, pady=5)
-update_btn.grid(row=0, column=1, padx=5, pady=5)
-delete_btn.grid(row=0, column=2, padx=5, pady=5)
-copy_btn.grid(row=0, column=3, padx=5, pady=5)
-clear_btn.grid(row=0, column=4, padx=5, pady=5)
-export_btn.grid(row=0, column=5, padx=5, pady=5)
-save_btn.grid(row=0, column=6, padx=5, pady=5)
+select_btn.grid(row=0, column=1, padx=5, pady=5)
+update_btn.grid(row=0, column=2, padx=5, pady=5)
+delete_btn.grid(row=0, column=3, padx=5, pady=5)
+copy_btn.grid(row=0, column=4, padx=5, pady=5)
+find_btn.grid(row=0, column=5, padx=5, pady=5)
+export_btn.grid(row=0, column=6, padx=5, pady=5)
 # ======================================================================== #
 
 # ========== Form section ==============
@@ -203,11 +286,15 @@ password_entry.grid(row=4, column=2, padx=10, pady=5)
 entry_widgets.extend(
     [url_entry, title_entry, username_entry, email_entry, password_entry])
 
-# Password Generator
+# Password Generator and clear
 pasword_generator_btn = Button(
     entries_frame, text="GENERATE PASSWORD", borderwidth=3,
     bg=btn_color, fg='white', command=get_a_password)
+clear_btn = Button(
+    entries_frame, text="CLEAR ALL", borderwidth=3,
+    bg=btn_color, fg='white', command=clear_entry_boxes)
 pasword_generator_btn.grid(row=0, column=3, padx=5, pady=5)
+clear_btn.grid(row=1, column=3, padx=5, pady=5)
 
 # ========== Tree section ==============
 style.configure(win)
