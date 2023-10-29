@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import filedialog
 import tkinter
 import random
 import string
@@ -8,6 +9,8 @@ import database as db
 import csv
 from datetime import datetime
 import numpy as np
+from openpyxl import Workbook
+import pyperclip
 
 win = tkinter.Tk()
 win.title("NoMorePass | Dashboard")
@@ -50,10 +53,12 @@ def refresh_table():
     tree.tag_configure('orow', background="#EEEEEE")
     tree.pack()
 
+
 def set_placeholder(word, num):
-    for ph in range(0,5):
+    for ph in range(0, 5):
         if ph == num:
             placeholder[ph].set(word)
+
 
 def generate_password():
     password = ''.join(random.choice(password_characters)
@@ -86,12 +91,13 @@ def add_login():
     username = str(username_entry.get())
     email = str(email_entry.get())
     password = str(password_entry.get())
+    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     if username == "":
         username = email
 
     information = db.create_information(
-        'test_passwords', [url, title, username, email, password])
+        'test_passwords', [url, title, username, email, password, date])
     try:
         if information:
             clear_entry_boxes()
@@ -104,37 +110,39 @@ def add_login():
 
 def update():
     selected_id = ""
-    try:
-        selected_item = tree.selection()[0]
-        selected_id = str(tree.item(selected_item)['values'][0])
+    selected_item = tree.selection()
 
+    if not selected_item:
+        messagebox.showwarning("No Item Selected", "Select a row to update.")
+        return
+
+    try:
+        selected_id = str(tree.item(selected_item[0])['values'][0])
         url = str(url_entry.get())
         title = str(title_entry.get())
         username = str(username_entry.get())
         email = str(email_entry.get())
         password = str(password_entry.get())
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        if url=="" and title=="" and username=="" and email=="" and password=="":
-            messagebox.showwarning("Nothing to Update", "No information to update.")
+        if url == "" and title == "" and username == "" and email == "" and password == "":
+            messagebox.showwarning("Nothing to Update",
+                                   "No information to update.")
             return
         if username == "":
             username = email
 
         updated = db.update_information(
-            selected_id, url, title, username, email, password)
+            selected_id, url, title, username, email, password, date)
 
-        try:
-            if updated:
-                clear_entry_boxes()
-                messagebox.showinfo("Success", "Information succesfully updated!")
-                refresh_table()
-        except Exception as e:
-            print("Error:", str(e))
-            messagebox.showerror("Error", "Error while saving")
-    except:
-        messagebox.showwarning("No Item Selected", "Select a row to update.")
-        return
-    
+        if updated:
+            clear_entry_boxes()
+            messagebox.showinfo("Success", "Information successfully updated!")
+            refresh_table()
+    except Exception as e:
+        print("Error:", str(e))
+        messagebox.showerror("Error", "An error occurred while updating.")
+
 
 def select():
     try:
@@ -154,10 +162,27 @@ def select():
     except:
         messagebox.showwarning("No Item Selected", "Select a row to update.")
 
+
+def copy():
+    try:
+        selected_item = tree.selection()[0]
+        selected_password = str(tree.item(selected_item)['values'][5])
+
+        pyperclip.copy(selected_password)
+
+        messagebox.showinfo("", "Password Copied!")
+
+    except:
+        messagebox.showwarning(
+            "No Item Selected", "Select an item to copy the password.")
+        return
+
+
 def delete():
     try:
         if tree.selection()[0]:
-            confirmation = messagebox.askquestion("Warning: Permanent Deletion", "DELETING this entry is PERMANENT!! Continue?")
+            confirmation = messagebox.askquestion(
+                "Warning: Permanent Deletion", "DELETING this entry is PERMANENT!! Continue?")
 
             if confirmation == 'no':
                 return
@@ -174,11 +199,13 @@ def delete():
     except:
         messagebox.showwarning("No Item Selected", "Select a row to delete.")
         return
-    
+
+
 def find_query(entry, column):
     sql = f"SELECT * FROM test_passwords WHERE {column} LIKE '%{entry}%'"
 
     return sql
+
 
 def find():
     website = str(url_entry.get())
@@ -200,18 +227,164 @@ def find():
     elif password:
         sql = find_query(password, 'password')
     else:
-        messagebox.showerror("Nothing entered", "Fill one of the entries\nin order to find login information")
+        messagebox.showerror(
+            "Nothing entered", "Fill one of the entries\nin order to find login information")
         return
 
     c.execute(sql)
     try:
         result = c.fetchall()
-        for num in range(0,5):
-            set_placeholder(result[0][num],(num))
+        for num in range(0, 5):
+            set_placeholder(result[0][num], (num))
         conn.commit()
         conn.close()
     except:
         messagebox.showerror("No results", "Login not found.")
+
+
+def show_export_window():
+    top = Toplevel()
+    top.title("Export to File")
+
+    top.geometry("200x100")
+
+    excel_check = tkinter.IntVar()
+    csv_check = tkinter.IntVar()
+
+    excel_checked = Checkbutton(
+        top, text="Export to Excel", variable=excel_check, onvalue=1, offvalue=0)
+    csv_checked = Checkbutton(
+        top, text="Export to CSV", variable=csv_check, onvalue=1, offvalue=0)
+    export_file_btn = Button(top, text="EXPORT FILE(S)", width=20,
+                             borderwidth=3, bg=btn_color, fg='white', command=lambda: export_files(excel_check, csv_check, top))
+
+    excel_checked.pack()
+    csv_checked.pack()
+    export_file_btn.pack()
+
+    top.resizable(False, False)
+    top.mainloop()
+
+
+def export_files(excel_check, csv_check, top):
+    date = str(datetime.now())
+    date = date.replace(" ", "_")
+    date = date.replace(":", '-')
+    datefinal = date[:16]
+
+    success_message = None
+
+    try:
+        if excel_check.get() == 1:
+            file_path = filedialog.asksaveasfilename(
+                initialfile=f"passwords_{datefinal}.xlsx",
+                filetypes=[("Excel files", "*.xlsx")]
+            )
+            if file_path:
+                export_to_excel(file_path)
+                success_message = "Passwords saved successfully."
+
+        if csv_check.get() == 1:
+            file_path = filedialog.asksaveasfilename(
+                initialfile=f"passwords_{datefinal}.csv",
+                filetypes=[("CSV files", "*.csv")]
+            )
+            if file_path:
+                export_to_csv(file_path)
+                success_message = "Passwords saved successfully."
+
+        if excel_check.get() == 0 and csv_check.get() == 0:
+            messagebox.showerror("Nothing Selected",
+                                 "Select at least one option")
+            return
+
+        if success_message:
+            messagebox.showinfo("Success", success_message)
+            top.destroy()
+
+    except Exception as e:
+        print("Error:", str(e))
+        messagebox.showerror(
+            "Save Error", "Something went wrong while saving...")
+
+
+def export_to_csv(file):
+
+    try:
+        conn, c = db.connect()
+        sql = f"SELECT rowid, * FROM test_passwords ORDER BY rowid DESC"
+
+        c.execute(sql)
+        dataraw = c.fetchall()
+        date = str(datetime.now())
+        date = date.replace(" ", "_")
+        date = date.replace(":", '-')
+        datefinal = date[:16]
+
+        with open(file, "w", newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["ID", "URL", "Title", "Username",
+                            "Email", "Password", "Date"])
+            for record in dataraw:
+                writer.writerow(record)
+
+        return True
+
+    except Exception as e:
+        print("Save error: " + str(e))
+        return False
+
+
+def export_to_excel(file):
+
+    try:
+        date = str(datetime.now())
+        date = date.replace(" ", "_")
+        date = date.replace(":", '-')
+        datefinal = date[:16]
+
+        data = db.read_all_data()
+
+        wb = Workbook()
+        ws = wb.active
+
+        header = ["ID", "URL", "Title", "Username",
+                  "Email", "Password", "Date"]
+        ws.append(header)
+
+        for row in data:
+            ws.append(row)
+
+        filepath = file
+        wb.save(filepath)
+        return True
+
+    except Exception as e:
+        print("Save error: " + str(e))
+        return False
+
+# def export_to_excel():
+#     conn, c = db.connect()
+#     sql = f"SELECT rowid, * FROM test_passwords ORDER BY rowid DESC"
+
+#     c.execute(sql)
+#     dataraw = c.fetchall()
+#     date = str(datetime.now())
+#     date = date.replace(" ", "_")
+#     date = date.replace(":", '-')
+#     datefinal = date[:16]
+
+#     with open("passwords_"+datefinal+".csv", "w", newline='') as f:
+#         writer = csv.writer(f, dialect='excel')
+
+#         for record in dataraw:
+#             writer.writerow(record)
+#     messagebox.showinfo(
+#         "Success", "Passwords saved successfully to "+datefinal+".csv")
+
+#     conn.commit()
+#     conn.close()
+
 # CREATE DATABASE
 # table = db.create_table("test_passwords",
 #                         ('url', 'TEXT'),
@@ -236,11 +409,11 @@ select_btn = Button(options_frame, text="SELECT", width=10,
 delete_btn = Button(options_frame, text="DELETE", width=10,
                     borderwidth=3, bg=btn_color, fg='white', command=delete)
 copy_btn = Button(options_frame, text="COPY", width=10,
-                  borderwidth=3, bg=btn_color, fg='white')
+                  borderwidth=3, bg=btn_color, fg='white', command=copy)
 find_btn = Button(options_frame, text="FIND", width=10,
-                   borderwidth=3, bg=btn_color, fg='white', command=find)
+                  borderwidth=3, bg=btn_color, fg='white', command=find)
 export_btn = Button(options_frame, text="EXPORT", width=10,
-                    borderwidth=3, bg=btn_color, fg='white')
+                    borderwidth=3, bg=btn_color, fg='white', command=show_export_window)
 
 add_btn.grid(row=0, column=0, padx=5, pady=5)
 select_btn.grid(row=0, column=1, padx=5, pady=5)
@@ -253,9 +426,9 @@ export_btn.grid(row=0, column=6, padx=5, pady=5)
 
 # ========== Form section ==============
 
-entries_frame = tkinter.LabelFrame(frame, text="Add Login", borderwidth=5)
-entries_frame.grid(row=1, column=0, sticky='w', padx=[
-                   10, 200], pady=20, ipadx=[6])
+entries_frame = tkinter.LabelFrame(frame, text="Add/Edit Login", borderwidth=5)
+entries_frame.grid(row=1, column=0, sticky='w',
+                   padx=(50, 200), pady=20, ipadx=6)
 
 # Labels
 url_label = Label(entries_frame, text="URL", anchor="e", width=10)
@@ -308,7 +481,7 @@ tree.column("Title", anchor=W, width=100)
 tree.column("Username", anchor=W, width=100)
 tree.column("Email", anchor=W, width=100)
 tree.column("Password", anchor=W, width=100)
-tree.column("Date", anchor=W, width=150)
+tree.column("Date", anchor=W, width=100)
 
 tree.heading("ID", text="ID", anchor=W)
 tree.heading("Url", text="Url", anchor=W)
@@ -316,7 +489,7 @@ tree.heading("Title", text="Title", anchor=W)
 tree.heading("Username", text="Username", anchor=W)
 tree.heading("Email", text="Email", anchor=W)
 tree.heading("Password", text="Password", anchor=W)
-tree.heading("Date", text="Date", anchor=W)
+tree.heading("Date", text="Last Modified", anchor=W)
 
 tree.tag_configure('orow', background="#EEEEEE")
 tree.pack()

@@ -1,6 +1,6 @@
 import sqlite3
-# conn = sqlite3.connect('test.db')
-# c = conn.cursor()
+conn = sqlite3.connect('test.db')
+c = conn.cursor()
 
 
 def create_table(table, *columns, unique_columns=()) -> bool:
@@ -80,12 +80,12 @@ def create_information(table, user_info=[]):
         return False
 
 
-def update_information(rowid, url, title, username, email, password) -> bool:
+def update_information(rowid, url, title, username, email, password, date) -> bool:
     conn = sqlite3.connect('test.db')
     c = conn.cursor()
 
-    query = """UPDATE test_passwords SET url = ?, title = ?, username = ?, email = ?, password = ? WHERE rowid = ? """
-    data = (url, title, username, email, password, rowid)
+    query = """UPDATE test_passwords SET url = ?, title = ?, username = ?, email = ?, password = ?, date = ? WHERE rowid = ? """
+    data = (url, title, username, email, password, date, rowid)
 
     try:
         c.execute(query, data)
@@ -95,7 +95,8 @@ def update_information(rowid, url, title, username, email, password) -> bool:
     except Exception as e:
         print(e)
         return False
-    
+
+
 def delete_entry(rowid):
     conn = sqlite3.connect('test.db')
     c = conn.cursor()
@@ -106,6 +107,7 @@ def delete_entry(rowid):
     c.execute(query, data)
     conn.commit()
     conn.close()
+
 
 def retrieve_account(table, email, password) -> bool:
     conn = sqlite3.connect('test.db')
@@ -136,12 +138,13 @@ def read_all_data():
 
     return items
 
+
 def connect():
     conn = sqlite3.connect('test.db')
     c = conn.cursor()
 
     return conn, c
-    
+
 # table = create_table(
 # 				'test',
 # 				('first_name', 'TEXT'),
