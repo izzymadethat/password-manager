@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-import ast
+import database as db
 
 window = tk.Tk()
 window.title("SignUp | NoMorePass")
@@ -34,6 +34,50 @@ login_heading = tk.Label(
 )
 
 login_heading.place(x=100, y=5)
+
+"""FUNCTIONS"""
+
+
+def login():
+    conn, c = db.connect()
+
+    email_ = str(login_email.get())
+    password_ = str(login_password.get())
+
+    c.execute(
+        "SELECT * FROM test_users WHERE email = ? AND password = ?", (email_, password_))
+
+    result = c.fetchone()
+
+    if result:
+        messagebox.showinfo("Success", "Login Successful")
+        # You can proceed with further actions for a successful login
+    else:
+        messagebox.showerror("Error", "Login Failed")
+        # Handle the case where there's no matching user
+
+
+def signup():
+
+    username = str(user.get())
+    email_address = str(email.get())
+    password_ = str(password.get())
+    password_confirm = str(confirm_password.get())
+
+    if password_ == password_confirm:
+        try:
+            account = db.create_information('test_users', user_info=[
+                username, email_address, password_])
+            if account:
+                messagebox.showinfo("Success", "Account Succesfully Created!")
+            else:
+                messagebox.showerror("Error", "Error creating account")
+        except:
+            messagebox.showerror("Error", "Account Already Exists")
+
+    else:
+        messagebox.showerror("Error", "Passwords don't match!")
+
 
 """==============SIGN IN INFO SECTION================================"""
 
@@ -79,7 +123,7 @@ def on_password_enter(e):
 
 def on_password_leave(e):
     if login_password.get() == "":
-        login_password.insert(0, "Email")
+        login_password.insert(0, "Password")
 
 
 login_password = tk.Entry(
@@ -105,8 +149,8 @@ tk.Frame(login_frame, width=295, height=2, bg="black").place(x=15, y=177)
 
 # ===============Login Button =============================
 tk.Button(
-    login_frame, width=39, pady=7, text="Sign Up", bg="#57a1f8", fg="white", border=0,
-    cursor='hand2').place(x=15, y=217)
+    login_frame, width=39, pady=7, text="Sign In", bg="#57a1f8", fg="white", border=0,
+    cursor='hand2', command=login).place(x=15, y=217)
 
 
 """================SIGN UP INFO SECTION============================"""
@@ -238,7 +282,7 @@ tk.Frame(frame, width=295, height=2, bg="black").place(x=25, y=317)
 # ----- Button -----
 tk.Button(
     frame, width=39, pady=7, text="Sign Up", bg="#57a1f8", fg="white", border=0,
-    cursor='hand2').place(x=35, y=340)
+    cursor='hand2', command=signup).place(x=35, y=340)
 
 # account_exist_label = tk.Label(
 #     frame,

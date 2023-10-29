@@ -169,6 +169,13 @@ def connect():
 
 # retrieve_account('test_password_table', 'isaiah@me.com', 'Vi10088139')
 
+# create_table(
+#     'test_users',
+#     ('username', 'TEXT'),
+#     ('email', 'TEXT'),
+#     ('password', 'TEXT'),
+#     unique_columns=['email'])
+
 
 # conn.commit()
 # conn.close()
