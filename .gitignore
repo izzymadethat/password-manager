@@ -6,3 +6,4 @@ dist/
 build/
 documentation/basically.txt
 documentation/layout.txt
+test.db
