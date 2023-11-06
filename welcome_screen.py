@@ -7,6 +7,7 @@ from cryptography.fernet import Fernet
 import random
 import string
 import re
+import database as db
 
 
 class WelcomeScreen:
@@ -33,9 +34,43 @@ class WelcomeScreen:
         f = Fernet(self.key)
         return f.decrypt(encrypted_password.encode()).decode()
 
+    def login_user(self) -> bool:
+        email = self.login_email_entry.get()
+        password =self.login_password_entry.get()
+
+        print(email, password)
+
+        if email != "Email Address" and password != "Master Password":
+            valid_login = db.authenticate_user(email, password)
+            if valid_login:
+                print("Succesful")
+                return True
+            else:
+                messagebox.showwarning('User does not exist', 'User does not exist. Please correct login\nOr signup.')
+        else:
+            messagebox.showerror('No Information added','Please Enter Email & Password to login')
+
+    def sign_user_up(self) -> bool:
+        email = self.signup_entry.get()
+        password = self.signup_password_entry.get()
+        pw_confirmation = self.signup_password_confirmation_entry.get()
+
+
+        if email != "Email Address" and password != "Master Password" and pw_confirmation != "Confirm Password":
+            if password == pw_confirmation:
+                valid_login = db.check_if_email_exists(email)
+                if not valid_login:
+                    db.create_user_upon_signup() #needs to be created
+                else:
+                    messagebox.showwarning("User exists", "Email already exists")
+            else:
+                messagebox.showerror('Mismatched Passwords','Passwords do not match.')
+        else:
+           messagebox.showerror('No Information added','Please Enter All Email & Password to signup')
+
     def toggle_password_visibility(self, password_widget):
         if (
-            self.hide_password.get() and not password_widget.get() == "Master Password"
+            self.hide_password.get() and not password_widget.get() == "Master Password" or self.hide_password.get() and not password_widget.get() == " Confirm Master Password"
         ):  # if show password is checked
             password_widget.config(show="*")
         elif password_widget.get() == "Master Password" or password_widget.get() == "":
@@ -53,7 +88,7 @@ class WelcomeScreen:
 
     def on_exit(self, e, widget, placeholder):
         if widget.get() == "":
-            if placeholder == "Master Password":
+            if placeholder == "Master Password" or placeholder == "Confirm Master Password":
                 widget.insert(0, placeholder)
                 widget.config(show="")
             else:
@@ -156,6 +191,7 @@ class WelcomeScreen:
             bg=self.MAIN_COLOR,
             fg=self.SECOND_COLOR,
             width=15,
+            command=self.login_user,
         ).grid(row=4, column=1, columnspan=2, padx=(5, 10), pady=(5, 15), sticky="w")
 
         # ------------------ Sign Up Section ------------------------
@@ -188,6 +224,16 @@ class WelcomeScreen:
         self.signup_label.grid(row=2, column=0, padx=5, pady=10, sticky="w")
         self.signup_entry.grid(row=2, column=1, padx=(5, 10), pady=5, sticky="w")
 
+        self.signup_entry.insert(0, "Email Address")
+        self.signup_entry.bind(
+            "<FocusIn>",
+            lambda e: self.on_enter(e, self.signup_entry, "Email Address"),
+        )
+        self.signup_entry.bind(
+            "<FocusOut>",
+            lambda e: self.on_exit(e, self.signup_entry, "Email Address"),
+        )
+
         self.signup_password_label = tk.Label(
             self.signup_frame,
             text="Create a Master Password:",
@@ -195,8 +241,19 @@ class WelcomeScreen:
             fg=self.TEXT_COLOR,
         ).grid(row=3, column=0, padx=(5, 10), pady=5, sticky="w")
         self.signup_password_entry = tk.Entry(
-            self.signup_frame, width=self.ENTRY_WIDTH - 15, show="*"
-        ).grid(row=3, column=1, padx=(5, 10), pady=(5, 15), sticky="w")
+            self.signup_frame, width=self.ENTRY_WIDTH - 15,
+        )
+        self.signup_password_entry.grid(row=3, column=1, padx=(5, 10), pady=(5, 15), sticky="w")
+
+        self.signup_password_entry.insert(0, "Master Password")
+        self.signup_password_entry.bind(
+            "<FocusIn>",
+            lambda e: self.on_enter(e, self.signup_password_entry, "Master Password"),
+        )
+        self.signup_password_entry.bind(
+            "<FocusOut>",
+            lambda e: self.on_exit(e, self.signup_password_entry, "Master Password"),
+        )
 
         self.signup_password_confirmation_label = tk.Label(
             self.signup_frame,
@@ -205,23 +262,60 @@ class WelcomeScreen:
             fg=self.TEXT_COLOR,
         ).grid(row=4, column=0, padx=(5, 10), pady=5, sticky="w")
         self.signup_password_confirmation_entry = tk.Entry(
-            self.signup_frame, width=self.ENTRY_WIDTH - 15, show="*"
-        ).grid(row=4, column=1, padx=(5, 10), pady=(5, 15), sticky="w")
+            self.signup_frame, width=self.ENTRY_WIDTH - 15,
+        )
+        self.signup_password_confirmation_entry.grid(row=4, column=1, padx=(5, 10), pady=(5, 15), sticky="w")
+
+        self.signup_password_confirmation_entry.insert(0, "Confirm Master Password")
+        self.signup_password_confirmation_entry.bind(
+            "<FocusIn>",
+            lambda e: self.on_enter(e, self.signup_password_confirmation_entry, "Confirm Master Password"),
+        )
+        self.signup_password_confirmation_entry.bind(
+            "<FocusOut>",
+            lambda e: self.on_exit(e, self.signup_password_confirmation_entry, "Confirm Master Password"),
+        )
+
+        self.password_visibility_check2 = tk.Checkbutton(
+            self.signup_frame,
+            text="Hide Password",
+            variable=self.hide_password,
+            bg=self.SECOND_COLOR,
+            fg=self.TEXT_COLOR,
+            onvalue=True,
+            offvalue=False,
+            selectcolor=self.SECOND_COLOR,
+            command=lambda: self.toggle_password_visibility(
+                self.signup_password_entry
+            ),  # Attach the toggle function
+        )
+        self.password_visibility_check2.grid(
+            row=5, column=1, padx=(5, 10), pady=(5, 15), sticky="w"
+        )
+
+
         self.signup_button = tk.Button(
             self.signup_frame,
             text="Start Storing Passwords",
             bg=self.MAIN_COLOR,
             fg=self.SECOND_COLOR,
             width=25,
-        ).grid(row=5, column=1, columnspan=2, padx=(5, 10), pady=(5, 15), sticky="w")
+            command=self.sign_user_up,
+        ).grid(row=6, column=1, columnspan=2, padx=(5, 10), pady=(5, 15), sticky="w")
 
         self.toggle_password_visibility(self.login_password_entry)
+        self.toggle_password_visibility(self.signup_password_entry)
+        self.toggle_password_visibility(self.signup_password_confirmation_entry)
 
         self.window.resizable(False, False)
         self.window.mainloop()
 
     def run(self):
         self.create_gui()
+
+    def destroy(self, app):
+        app.destroy()
+
 
 
 app = WelcomeScreen()

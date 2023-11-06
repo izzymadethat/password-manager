@@ -24,8 +24,15 @@ def authenticate_user(email, password) -> bool:
     else:
         return False
 
+def check_if_email_exists(email: str) -> bool:
+    user = users.find_one({"email": email})
+    if user:
+        return True
+    else:
+        return False
 
-def create_user_upon_signup():
+
+def create_user_upon_signup(email, password):
     pass
 
 
