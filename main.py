@@ -60,7 +60,6 @@ from cryptography.fernet import Fernet
 import random
 import string
 import re
-import pymongo
 
 SCREEN_SIZE = "700x550"
 MAIN_COLOR = "#A45EE5"
@@ -69,7 +68,7 @@ TEXT_COLOR = "#FFF"
 ENTRY_WIDTH = 50
 VERSION = "2.0.0"
 
-current_date = datetime.now().utcnow()
+
 characters = string.ascii_letters + string.digits
 http_selections = ["http://", "https://"]
 
@@ -91,6 +90,7 @@ def decrypt_password(key, encrypted_password):
 key = generate_key()
 passwords = []
 
+
 def add_login_entry():
     # gather all entries
     http_selection = http_var.get()
@@ -111,21 +111,25 @@ def add_login_entry():
     if notes and len(notes) > 200:
         notes = notes[:200]
 
-
     if website and valid_email and password:
         encrypted_password = encrypt_password(key, password)
         full_site = http_selection + website
+        current_date = datetime.now().utcnow()
         formatted_date = current_date.strftime("%m/%d/%Y %H:%M:%S")
-        passwords.append({"site_details":{
-                                    "website": website,
-                                    "title": title,
-                                    "username": username,
-                                    "email": email,
-                                    "password": encrypted_password,
-                                    "favorite": favorite,
-                                    "notes": notes,
-                                    "last_modified": formatted_date + "UTC"
-                                }})
+        passwords.append(
+            {
+                "site_details": {
+                    "website": website,
+                    "title": title,
+                    "username": username,
+                    "email": email,
+                    "password": encrypted_password,
+                    "favorite": favorite,
+                    "notes": notes,
+                    "last_modified": formatted_date + "UTC",
+                }
+            }
+        )
         messagebox.showinfo("Success", "Password added successfuly!")
         clear_entries()
 
@@ -133,6 +137,8 @@ def add_login_entry():
         messagebox.showerror(
             "All Fields Required", "Website, Valid Email, and Password Fields Required."
         )
+
+
 # def find_password():
 #     website = website_entry.get()
 #     title = title_entry.get()
@@ -148,13 +154,13 @@ def add_login_entry():
 #         messagebox.showerror("Error", "Could Not Find Entry")
 
 
-
 def check_if_valid_email(email: string) -> bool:
-    email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    email_pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
     if re.match(email_pattern, email):
         return True
     else:
         return False
+
 
 def generate_new_password():
     """Generate new password based on number of characters from spinbox."""
@@ -178,8 +184,10 @@ def clear_entries():
             widget.delete("1.0", "end")
     http_var.set("https://")
 
+
 def find_query(database):
     pass
+
 
 window = tk.Tk()
 window.title("NoMorePass | Password Manager")
@@ -198,6 +206,7 @@ menu_frame = tk.Frame(window, background=MAIN_COLOR)
 menu_frame.grid(row=2, column=0, padx=10, pady=10)
 
 # ============= Title and Instructions ============
+current_date = datetime.now()
 instructions = """Use the entry fields to add, search, update and delete login entries.
                   The following fields are required to add a password: Website Url, Email, and Password.
                   Generate a password by choosing amount of characters then clicking 'Generate Password.'"""
@@ -314,7 +323,11 @@ add_button = tk.Button(
     command=add_login_entry,
 )
 find_button = tk.Button(
-    menu_frame, text="FIND", bg=SECOND_COLOR, fg=TEXT_COLOR, width=15,
+    menu_frame,
+    text="FIND",
+    bg=SECOND_COLOR,
+    fg=TEXT_COLOR,
+    width=15,
 )
 update_button = tk.Button(
     menu_frame, text="UPDATE", bg=SECOND_COLOR, fg=TEXT_COLOR, width=15
