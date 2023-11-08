@@ -60,7 +60,9 @@ from cryptography.fernet import Fernet
 import random
 import string
 import re
+from time import sleep
 
+from welcome_screen import WelcomeScreen
 
 class PasswordManager:
     def __init__(self) -> None:
@@ -70,21 +72,21 @@ class PasswordManager:
         self.ENTRY_WIDTH = 50
         self.VERSION = "2.0.0"
 
-        self.key = self.generate_key()
+        # self.key = self.generate_key()
         self.passwords = []
         self.characters = string.ascii_letters + string.digits
         self.http_selections = ["http://", "https://"]
 
-    def generate_key(self):
-        return Fernet.generate_key()
+    # def generate_key(self):
+    #     return Fernet.generate_key()
 
-    def encrypt_password(self, key, password):
-        f = Fernet(key)
-        return f.encrypt(password.encode()).decode()
+    # def encrypt_password(self, key, password):
+    #     f = Fernet(key)
+    #     return f.encrypt(password.encode()).decode()
 
-    def decrypt_password(self, encrypted_password):
-        f = Fernet(self.key)
-        return f.decrypt(encrypted_password.encode()).decode()
+    # def decrypt_password(self, encrypted_password):
+    #     f = Fernet(self.key)
+    #     return f.decrypt(encrypted_password.encode()).decode()
 
     def add_login_entry(self):
         # gather all entries
@@ -107,7 +109,7 @@ class PasswordManager:
             notes = notes[:200]
 
         if website and valid_email and password:
-            encrypted_password = self.encrypt_password(self.key, password)
+            # encrypted_password = self.encrypt_password(self.key, password)
             full_site = http_selection + website
             self.current_date = datetime.now().utcnow()
             formatted_date = self.current_date.strftime("%m/%d/%Y %H:%M:%S")
@@ -362,5 +364,10 @@ class PasswordManager:
 
 
 if __name__ == "__main__":
-    app = PasswordManager()
+    app = WelcomeScreen()
     app.run()
+    if app.successful_login:
+        app.window.destroy()
+        sleep(0.3)
+        main_app = PasswordManager()
+        main_app.run()

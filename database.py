@@ -8,14 +8,12 @@ db = client.password_mgr
 users = db.users
 passwords = db.password_entries
 
-
 def get_user_id(email, password):
     user = users.find_one({"email": email, "password": password})
     if user:
         return user["_id"]
     else:
         return None
-
 
 def authenticate_user(email, password) -> bool:
     user = users.find_one({"email": email, "password": password})
@@ -31,10 +29,8 @@ def check_if_email_exists(email: str) -> bool:
     else:
         return False
 
-
 def create_user_upon_signup(email, password):
-    pass
-
+    users.insert_one({"email": email, "password": password})
 
 def add_password_entry(
     user_id, website, title, username, email, encrypted_password, favorite, notes, date
